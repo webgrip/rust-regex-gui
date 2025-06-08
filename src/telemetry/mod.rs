@@ -17,7 +17,7 @@ pub struct TracingLogger;
 
 impl Logger for TracingLogger {
     fn log(&self, message: &str) {
-        info!("{message}");
+        info!("{}", message);
     }
 }
 
