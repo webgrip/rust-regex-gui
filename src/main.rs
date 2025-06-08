@@ -8,6 +8,7 @@ use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+use tracing_subscriber::filter::LevelFilter;
 
 struct RegexApp {
     dry_run: bool,
@@ -18,7 +19,7 @@ struct RegexApp {
 
 impl RegexApp {
     fn new() -> Self {
-        let log_writer = init_tracing();
+        let log_writer = init_tracing(LevelFilter::INFO);
         let logger = Arc::new(TracingLogger);
         let renamer = Renamer::new(logger);
         Self {
