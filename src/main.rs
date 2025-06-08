@@ -1,15 +1,33 @@
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 
-#[derive(Default)]
-struct Rule {
-    from: String,
-    to: String,
-}
+mod application;
+mod domain;
+mod telemetry;
 
-#[derive(Default)]
+use application::Renamer;
+use domain::Rule;
+use std::sync::Arc;
+use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+
 struct RegexApp {
     dry_run: bool,
     rules: Vec<Rule>,
+    renamer: Renamer,
+    log_writer: MemoryWriter,
+}
+
+impl RegexApp {
+    fn new() -> Self {
+        let log_writer = init_tracing();
+        let logger = Arc::new(TracingLogger);
+        let renamer = Renamer::new(logger);
+        Self {
+            dry_run: false,
+            rules: vec![Rule::default()],
+            renamer,
+            log_writer,
+        }
+    }
 }
 
 impl App for RegexApp {
@@ -34,6 +52,18 @@ impl App for RegexApp {
             if ui.button("Add Rule").clicked() {
                 self.rules.push(Rule::default());
             }
+
+            if ui.button("Execute").clicked() {
+                self.renamer.execute(&self.rules);
+            }
+
+            ui.separator();
+            ui.heading("Logs");
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for log in self.log_writer.logs() {
+                    ui.label(log);
+                }
+            });
         });
     }
 }
@@ -43,6 +73,6 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Regex GUI",
         native_options,
-        Box::new(|_cc| Ok(Box::new(RegexApp::default()))),
+        Box::new(|_cc| Ok(Box::new(RegexApp::new()))),
     )
 }
