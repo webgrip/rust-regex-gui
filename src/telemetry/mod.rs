@@ -64,7 +64,7 @@ pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
     let layer = tracing_subscriber::fmt::layer().with_writer(writer.clone());
     let filter = EnvFilter::new(format!(
         "{}={}",
-        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_NAME").replace('-', "_"),
         level.to_string().to_lowercase()
     ));
     let subscriber = Registry::default().with(filter).with(layer);
