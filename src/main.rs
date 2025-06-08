@@ -1,5 +1,14 @@
 use eframe::{App, Frame, egui};
 
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::spawn_local;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsCast;
+#[cfg(target_arch = "wasm32")]
+use eframe::web_sys::HtmlCanvasElement;
+
 mod application;
 mod domain;
 mod telemetry;
@@ -69,6 +78,7 @@ impl App for RegexApp {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -76,4 +86,26 @@ fn main() -> eframe::Result<()> {
         native_options,
         Box::new(|_cc| Ok(Box::new(RegexApp::new()))),
     )
+}
+
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    // Redirect `log` messages to the browser console
+    eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+    let web_options = eframe::WebOptions::default();
+    spawn_local(async {
+        let canvas = eframe::web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.get_element_by_id("the_canvas_id"))
+            .and_then(|e| e.dyn_into::<HtmlCanvasElement>().ok())
+            .expect("canvas not found");
+        eframe::WebRunner::new()
+            .start(
+                canvas,
+                web_options,
+                Box::new(|_cc| Ok(Box::new(RegexApp::new()))),
+            )
+            .await
+            .expect("failed to start eframe");
+    });
 }
