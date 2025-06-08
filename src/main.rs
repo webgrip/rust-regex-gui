@@ -1,4 +1,4 @@
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 
 #[derive(Default)]
 struct Rule {
