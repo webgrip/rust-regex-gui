@@ -3,11 +3,7 @@ use std::sync::{Arc, Mutex};
 
 use tracing::{info, subscriber::set_global_default};
 use tracing_subscriber::{
-    Registry,
-    fmt::MakeWriter,
-    layer::SubscriberExt,
-    EnvFilter,
-    filter::LevelFilter,
+    EnvFilter, Registry, filter::LevelFilter, fmt::MakeWriter, layer::SubscriberExt,
 };
 
 /// Abstraction over logging so application code can remain decoupled from
@@ -66,7 +62,11 @@ impl<'a> MakeWriter<'a> for MemoryWriter {
 pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
     let writer = MemoryWriter::default();
     let layer = tracing_subscriber::fmt::layer().with_writer(writer.clone());
-    let filter = EnvFilter::new(format!("{}={}", env!("CARGO_PKG_NAME"), level.to_string().to_lowercase()));
+    let filter = EnvFilter::new(format!(
+        "{}={}",
+        env!("CARGO_PKG_NAME"),
+        level.to_string().to_lowercase()
+    ));
     let subscriber = Registry::default().with(filter).with(layer);
     set_global_default(subscriber).expect("set tracing subscriber");
     writer
