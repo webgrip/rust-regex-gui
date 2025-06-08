@@ -1,0 +1,39 @@
+name: '[Workflow] On Source Change'
+
+concurrency:
+  group: push-${{ github.branch }}
+
+on:
+  push:
+    branches:
+      - '*'
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/on_source_change.yml'
+      - '.github/workflows/on_tagged_release.yml'
+      - '.releaserc.json'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+jobs:
+  static-analysis:
+    name: 'Static Analysis'
+    uses: webgrip/workflows/.github/workflows/rust-static-analysis.yml@ubuntu-latest
+
+  tests:
+    name: 'Tests'
+    uses: webgrip/workflows/.github/workflows/rust-tests.yml@ubuntu-latest
+
+  semantic-release:
+    name: 'Semantic Release'
+    needs: [ static-analysis, tests ]
+    if: always() && needs.tests.result == 'success' && github.ref == 'refs/heads/main'
+    uses: webgrip/workflows/.github/workflows/rust-semantic-release.yml@ubuntu-latest
+
+  build-docker-image:
+    name: 'Build Docker Image'
+    needs: [ static-analysis, tests ]
+    if: always() && needs.tests.result == 'success'
+    uses: webgrip/workflows/.github/workflows/rust-build-docker-image.yml@ubuntu-latest
+
