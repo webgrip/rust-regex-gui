@@ -4,6 +4,10 @@ concurrency:
   group: push-${{ github.branch }}
 
 on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
   push:
     branches:
       - '*'
