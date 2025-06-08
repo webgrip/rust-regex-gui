@@ -1,4 +1,5 @@
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
+use rfd::{FileDialog, MessageDialog, MessageLevel};
 
 #[derive(Default)]
 struct Rule {
@@ -16,7 +17,19 @@ impl App for RegexApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Regex Rules");
-            ui.checkbox(&mut self.dry_run, "Dry Run");
+            let response = ui.checkbox(&mut self.dry_run, "Dry Run");
+            if response.clicked() {
+                let msg = if self.dry_run {
+                    "Dry run enabled"
+                } else {
+                    "Dry run disabled"
+                };
+                MessageDialog::new()
+                    .set_level(MessageLevel::Info)
+                    .set_title("Dry Run")
+                    .set_description(msg)
+                    .show();
+            }
             ui.separator();
 
             egui::Grid::new("rules_grid").show(ui, |ui| {
@@ -25,8 +38,22 @@ impl App for RegexApp {
                 ui.end_row();
 
                 for rule in &mut self.rules {
-                    ui.text_edit_singleline(&mut rule.from);
-                    ui.text_edit_singleline(&mut rule.to);
+                    ui.horizontal(|ui| {
+                        if ui.button("Select file").clicked() {
+                            if let Some(path) = FileDialog::new().pick_file() {
+                                rule.from = path.display().to_string();
+                            }
+                        }
+                        ui.label(&rule.from);
+                    });
+                    ui.horizontal(|ui| {
+                        if ui.button("Select destination").clicked() {
+                            if let Some(path) = FileDialog::new().pick_folder() {
+                                rule.to = path.display().to_string();
+                            }
+                        }
+                        ui.label(&rule.to);
+                    });
                     ui.end_row();
                 }
             });

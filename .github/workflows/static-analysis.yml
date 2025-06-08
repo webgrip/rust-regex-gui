@@ -1,0 +1,97 @@
+name: 'Static Analysis'
+
+on:
+  workflow_call:
+
+jobs:
+  static-analysis-run:
+    name: 'Static Analysis (fmt, Clippy, Audit, Deny, Udeps, Outdated)'
+    runs-on: ubuntu-latest
+
+    container:
+      image: rust:1.87.0-slim-bullseye
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry + target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: "cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}"
+
+      - name: Install extra tooling
+        run: |
+          set -e
+          cargo install --locked cargo-audit
+          cargo install --locked cargo-deny
+          cargo install --locked cargo-outdated
+          cargo install --locked cargo-udeps
+          cargo install --locked cargo-msrv
+          rustup toolchain install nightly
+          rustup component add rustfmt clippy
+          echo "Installed helper tools"
+
+      - name: rustfmt check
+        run: cargo fmt --all -- --check
+        continue-on-error: false
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        if: always()
+        continue-on-error: true
+
+      - name: cargo test
+        run: cargo test --all
+        if: always()
+        continue-on-error: true
+
+      - name: cargo audit
+        run: cargo audit
+        if: always()
+        continue-on-error: true
+
+      - name: cargo deny
+        run: cargo deny check --all-features
+        if: always()
+        continue-on-error: true
+
+      - name: cargo udeps
+        run: cargo +nightly udeps --all-targets
+        if: always()
+        continue-on-error: true
+
+      - name: cargo outdated
+        run: cargo outdated --workspace --depth=1
+        if: always()
+        continue-on-error: true
+
+      - name: cargo msrv
+        run: cargo msrv verify
+        if: always()
+        continue-on-error: true
+
+  cargo-normalize:
+    name: 'Cargo Sort (normalize Cargo.toml)'
+    runs-on: ubuntu-latest
+
+    container:
+      image: rust:1.87.0-slim-bullseye
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: "cargo-tools-${{ runner.os }}"
+
+      - name: Install cargo-sort
+        run: cargo install --locked cargo-sort
+
+      - name: Check Cargo.toml order
+        run: cargo sort --workspace --check
