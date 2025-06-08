@@ -15,7 +15,6 @@ on:
       - 'src/**'
       - 'tests/**'
       - '.github/workflows/on_source_change.yml'
-      - '.github/workflows/on_tagged_release.yml'
       - '.releaserc.json'
       - 'Cargo.toml'
       - 'Cargo.lock'
