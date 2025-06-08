@@ -2,7 +2,13 @@ use std::io::{self, Write};
 use std::sync::{Arc, Mutex};
 
 use tracing::{info, subscriber::set_global_default};
-use tracing_subscriber::{Registry, fmt::MakeWriter, layer::SubscriberExt};
+use tracing_subscriber::{
+    Registry,
+    fmt::MakeWriter,
+    layer::SubscriberExt,
+    EnvFilter,
+    filter::LevelFilter,
+};
 
 /// Abstraction over logging so application code can remain decoupled from
 /// specific logging frameworks.
@@ -57,10 +63,11 @@ impl<'a> MakeWriter<'a> for MemoryWriter {
 
 /// Initializes global tracing with an in-memory writer. Returns the writer so
 /// callers can read the collected logs.
-pub fn init_tracing() -> MemoryWriter {
+pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
     let writer = MemoryWriter::default();
     let layer = tracing_subscriber::fmt::layer().with_writer(writer.clone());
-    let subscriber = Registry::default().with(layer);
+    let filter = EnvFilter::new(format!("{}={}", env!("CARGO_PKG_NAME"), level.to_string().to_lowercase()));
+    let subscriber = Registry::default().with(filter).with(layer);
     set_global_default(subscriber).expect("set tracing subscriber");
     writer
 }

@@ -5,7 +5,8 @@ regex rules that map file names to a destination directory. A "Dry Run"
 checkbox toggles whether renames should actually happen.
 
 Logs are captured using the [`tracing`](https://crates.io/crates/tracing)
-ecosystem and displayed in the UI.
+ecosystem and displayed in the UI. The global subscriber filters logs for this
+crate at the `INFO` level so that only relevant messages appear.
 
 ## Running locally
 
