@@ -1,5 +1,5 @@
 use eframe::{App, Frame, egui};
-use egui::{CentralPanel, Margin, RichText};
+use egui::{CentralPanel, Margin, RichText, TopBottomPanel};
 
 #[cfg(target_arch = "wasm32")]
 use console_error_panic_hook;
@@ -10,14 +10,18 @@ use wasm_bindgen::JsCast;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::spawn_local;
 
+mod ansi;
 mod application;
 mod domain;
 mod telemetry;
+mod theme;
 
+use ansi::ansi_to_job;
 use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+use theme::catppuccin_visuals;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -57,6 +61,7 @@ impl App for RegexApp {
             style.spacing.item_spacing = egui::vec2(10.0, 8.0);
             style
         });
+        ctx.set_visuals(catppuccin_visuals());
 
         // --- main UI -------------------------------------------------------
         CentralPanel::default()
@@ -65,7 +70,12 @@ impl App for RegexApp {
                 // title ----------------------------------------------------
                 ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
                 ui.add_space(4.0);
-                ui.checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)");
+                let changed = ui
+                    .checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)")
+                    .changed();
+                if changed {
+                    info!("dry_run toggled: {}", self.dry_run);
+                }
                 ui.separator();
 
                 // rules table ---------------------------------------------
@@ -89,20 +99,26 @@ impl App for RegexApp {
                         info!("Added new rule");
                     }
                     if ui.button("▶  Execute").clicked() {
+                        info!("execute clicked");
                         self.renamer.execute(&self.rules);
                     }
                 });
+            });
 
-                // log view -------------------------------------------------
-                ui.separator();
+        TopBottomPanel::bottom("log_panel")
+            .resizable(true)
+            .default_height(200.0)
+            .min_height(200.0)
+            .show(ctx, |ui| {
                 ui.heading("Logs");
-                egui::ScrollArea::vertical()
-                    .max_height(200.0)
-                    .show(ui, |ui| {
-                        for line in self.log_writer.logs() {
-                            ui.monospace(line);
-                        }
-                    });
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    let default_color = ui.visuals().text_color();
+                    for line in self.log_writer.logs().iter().rev() {
+                        let job = ansi_to_job(line, default_color);
+                        ui.label(job);
+                    }
+                });
             });
     }
 }

@@ -62,14 +62,14 @@ pub fn init_tracing(level: tracing_subscriber::filter::LevelFilter) -> MemoryWri
     #[cfg(target_arch = "wasm32")]
     let layer = tracing_subscriber::fmt::layer()
         .with_writer(writer.clone())
-        .with_ansi(false)
+        .with_ansi(true)
         // ⬇️ avoid std::time::SystemTime, which panics on wasm32-unknown-unknown
         .without_time();
 
     #[cfg(not(target_arch = "wasm32"))]
     let layer = tracing_subscriber::fmt::layer()
         .with_writer(writer.clone())
-        .with_ansi(false);
+        .with_ansi(true);
 
     let filter = EnvFilter::new(format!(
         "{}={}",
