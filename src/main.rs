@@ -1,5 +1,6 @@
 use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Margin, RichText, TopBottomPanel};
+use egui_extras::{Column, TableBuilder};
 
 #[cfg(target_arch = "wasm32")]
 use console_error_panic_hook;
@@ -79,35 +80,52 @@ impl Default for RegexApp {
 impl App for RegexApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         // --- one‑off global style tweaks ----------------------------------
-        apply_catppuccin(ctx);
-
-        // --- main UI -------------------------------------------------------
-        CentralPanel::default()
-            .frame(egui::Frame::NONE.inner_margin(Margin::same(16)))
-            .show(ctx, |ui| {
-                // title ----------------------------------------------------
-                ui.vertical_centered(|ui| {
-                    ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
-                });
-                ui.add_space(8.0);
-                let changed = ui
-                    .checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)")
-                    .changed();
-                if changed {
-                    info!("dry_run toggled: {}", self.dry_run);
-                }
-                ui.separator();
-
-                // rules table ---------------------------------------------
-                ui.heading("Rules");
-                egui::ScrollArea::vertical()
-                    .max_height(200.0)
-                    .show(ui, |ui| {
-                        egui::Grid::new("rules_grid").striped(true).show(ui, |ui| {
-                            ui.label(RichText::new("From Regex").strong());
-                            ui.label(RichText::new("To Path").strong());
-                            ui.label("");
-                            ui.end_row();
+                TableBuilder::new(ui)
+                    .striped(true)
+                    .column(Column::auto())
+                    .column(Column::remainder())
+                    .column(Column::auto())
+                    .header(20.0, |mut header| {
+                        header.col(|ui| {
+                            ui.strong("From Regex");
+                        });
+                        header.col(|ui| {
+                            ui.strong("To Path");
+                        });
+                        header.col(|_ui| {});
+                    })
+                    .body(|mut body| {
+                        let regex_width = 200.0;
+                        let path_width = 200.0;
+                        let mut index = 0usize;
+                        while index < self.rules.len() {
+                            let (from, to) = {
+                                (&mut rule.from, &mut rule.to)
+                            };
+                            let mut remove = false;
+                            body.row(24.0, |mut row| {
+                                row.col(|ui| {
+                                    ui.add_sized(
+                                        [regex_width, 0.0],
+                                        egui::TextEdit::singleline(from).hint_text("regex"),
+                                    );
+                                });
+                                row.col(|ui| {
+                                    ui.add_sized(
+                                        [path_width, 0.0],
+                                        egui::TextEdit::singleline(to).hint_text("destination"),
+                                    );
+                                });
+                                row.col(|ui| {
+                                    if ui.button("❌").on_hover_text("Remove rule").clicked() {
+                                        remove = true;
+                                    }
+                                });
+                            });
+                            if remove {
+                                self.remove_rule(index);
+                            } else {
+                        }
 
                             let regex_width = 240.0;
                             let path_width = 240.0;

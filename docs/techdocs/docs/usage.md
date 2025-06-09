@@ -1,8 +1,9 @@
 # Usage
 
-The application displays a table of renaming rules. Each row lets you enter a
-regular expression and the destination path. Rules can be added or removed with
-dedicated buttons and the input fields have ample width for comfortable typing.
+The application displays renaming rules in a small data table. Each row lets you
+enter a regular expression and the destination path. Dedicated buttons allow you
+to add or remove rows and the input fields have ample width for comfortable
+typing.
 
 ## Running locally
 
