@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/webgrip/rust-regex-gui/compare/v1.0.0...v1.0.1) (2025-06-09)
+
+
+### Bug Fixes
+
+* update Cargo.lock ([0192e96](https://github.com/webgrip/rust-regex-gui/commit/0192e96e2bb5a2fe3b35ce0a73872d88c16eb389))
+
 # 1.0.0 (2025-06-09)
 
 
