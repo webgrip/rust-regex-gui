@@ -1,0 +1,15 @@
+graph TD
+    subgraph Application
+        Renamer
+    end
+    subgraph Domain
+        Rule
+    end
+    subgraph Infrastructure
+        UI
+        Telemetry
+    end
+
+    UI --> Renamer
+    Renamer --> Rule
+    Renamer --> Telemetry

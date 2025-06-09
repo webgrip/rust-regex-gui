@@ -6,6 +6,9 @@ theme:
 
 nav:
   - Home: index.md
+  - Architecture: architecture.md
+  - Usage: usage.md
+  - Development: development.md
 
 # https://www.mkdocs.org/user-guide/configuration
 plugins:
