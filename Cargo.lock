@@ -1875,6 +1875,7 @@ dependencies = [
  "regex",
  "tracing",
  "tracing-subscriber",
+ "walkdir",
  "wasm-bindgen",
  "wasm-bindgen-futures",
 ]
