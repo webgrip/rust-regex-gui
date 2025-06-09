@@ -1,4 +1,4 @@
-use eframe::{App, Frame, egui};
+use eframe::{egui, App, Frame};
 use egui::{CentralPanel, Margin, RichText, TopBottomPanel};
 
 #[cfg(target_arch = "wasm32")]
@@ -20,7 +20,7 @@ use ansi::ansi_to_job;
 use application::{Renamer, StdFileSystem};
 use domain::Rule;
 use std::sync::Arc;
-use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+use telemetry::{init_tracing, MemoryWriter, TracingLogger};
 use theme::apply_catppuccin;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
@@ -66,12 +66,12 @@ impl App for RegexApp {
                 // title ----------------------------------------------------
                 ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
                 ui.add_space(4.0);
-                let changed = ui
-                        let label = match (rule.file_match_count, rule.dir_match_count) {
-                            (Some(f), Some(d)) => format!("f:{}, d:{}", f, d),
-                            _ => "-".to_string(),
-                        };
-                }
+
+                // dry‑run toggle -----------------------------------------
+                ui.horizontal(|ui| {
+                    ui.checkbox(&mut self.dry_run, "Dry‑run (preview only)");
+                });
+
                 ui.separator();
 
                 // rules table ---------------------------------------------
@@ -89,7 +89,8 @@ impl App for RegexApp {
                             let _ = self.renamer.count_matches(rule);
                         }
                         let label = rule
-                            .match_count
+                            .file_match_count
+                            .or(rule.dir_match_count)
                             .map(|c| c.to_string())
                             .unwrap_or_else(|| "-".into());
                         ui.label(label);
@@ -114,6 +115,7 @@ impl App for RegexApp {
                 });
             });
 
+        // --- log panel -----------------------------------------------------
         TopBottomPanel::bottom("log_panel")
             .resizable(true)
             .min_height(200.0)
