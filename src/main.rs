@@ -40,7 +40,7 @@ impl RegexApp {
         let fs = Arc::new(StdFileSystem);
         let renamer = Renamer::new(logger, fs);
         Self {
-            dry_run: false,
+            dry_run: true,
             rules: vec![Rule::default()],
             renamer,
             log_writer,
