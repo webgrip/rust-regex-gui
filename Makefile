@@ -31,13 +31,13 @@ docker-run: ## Run the application via docker compose
 	docker compose up
 
 docker-stop: ## Stop the docker compose services
-        docker compose down
+	docker compose down
 
 wasm: ## Build the web version using trunk
-        trunk build --release
+	trunk build --release
 
 docker-build-web: ## Build the web docker image
-        docker compose build web
+	docker compose build web
 
 docker-run-web: ## Run the web container
-        docker compose up web
+	docker compose up web

@@ -61,12 +61,18 @@ impl<'a> MakeWriter<'a> for MemoryWriter {
 /// callers can read the collected logs.
 pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
     let writer = MemoryWriter::default();
-    let layer = tracing_subscriber::fmt::layer().with_writer(writer.clone());
+
+    // ⬇️ turn colour off
+    let layer = tracing_subscriber::fmt::layer()
+        .with_writer(writer.clone())
+        .with_ansi(false);
+
     let filter = EnvFilter::new(format!(
         "{}={}",
         env!("CARGO_PKG_NAME").replace('-', "_"),
         level.to_string().to_lowercase()
     ));
+
     let subscriber = Registry::default().with(filter).with(layer);
     set_global_default(subscriber).expect("set tracing subscriber");
     writer
