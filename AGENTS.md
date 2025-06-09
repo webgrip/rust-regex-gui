@@ -7,3 +7,5 @@ We use conventional commits https://www.conventionalcommits.org/en/v1.0.0/#speci
 ALWAYS write unit tests. Use TDD whenever at all possible. Remember that you're testing behavior, not implementation.
 
 Use https://keepachangelog.com/en/1.1.0/ for the PR description
+
+Make sure that every change you make to the program is reflected somewhere in ./docs/techdocs, and in the README.md, if applicable.
