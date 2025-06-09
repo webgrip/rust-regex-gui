@@ -4,8 +4,11 @@
 //==========================================================================
 #![allow(clippy::needless_return)]
 
+use eframe::egui::{
+    self, Align, Button, CentralPanel, Context, Key, Layout, Modifiers, RichText, TopBottomPanel,
+    Vec2,
+};
 use eframe::{App, Frame};
-use eframe::egui::{self, Align, Button, CentralPanel, Context, Key, Layout, Modifiers, RichText, TopBottomPanel, Vec2};
 use egui_extras::{Column, TableBuilder};
 
 #[cfg(target_arch = "wasm32")]
@@ -28,7 +31,7 @@ use application::{Renamer, StdFileSystem};
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::Logger;
-use telemetry::{init_tracing, MemoryWriter, TracingLogger};
+use telemetry::{MemoryWriter, TracingLogger, init_tracing};
 use theme::apply_catppuccin;
 use tracing::{info, warn};
 use tracing_subscriber::filter::LevelFilter;
@@ -121,16 +124,24 @@ impl App for RegexApp {
             //--------------------------- Rule table ------------------------
             TableBuilder::new(ui)
                 .striped(true)
-                .column(Column::auto())      // regex
-                .column(Column::auto())      // to path
-                .column(Column::auto())      // dirs
-                .column(Column::auto())      // files
+                .column(Column::auto()) // regex
+                .column(Column::auto()) // to path
+                .column(Column::auto()) // dirs
+                .column(Column::auto()) // files
                 .column(Column::remainder()) // actions (+/count/✖)
                 .header(24.0, |mut header| {
-                    header.col(|ui| { ui.strong("From Regex"); });
-                    header.col(|ui| { ui.strong("To Path"); });
-                    header.col(|ui| { ui.strong("Dirs"); });
-                    header.col(|ui| { ui.strong("Files"); });
+                    header.col(|ui| {
+                        ui.strong("From Regex");
+                    });
+                    header.col(|ui| {
+                        ui.strong("To Path");
+                    });
+                    header.col(|ui| {
+                        ui.strong("Dirs");
+                    });
+                    header.col(|ui| {
+                        ui.strong("Files");
+                    });
                     header.col(|ui| {
                         if ui.button("➕ Add").on_hover_text("Add rule").clicked() {
                             self.add_rule();
@@ -160,7 +171,8 @@ impl App for RegexApp {
                             row.col(|ui| {
                                 ui.add_sized(
                                     [path_width, 0.0],
-                                    egui::TextEdit::singleline(&mut rule.to).hint_text("destination"),
+                                    egui::TextEdit::singleline(&mut rule.to)
+                                        .hint_text("destination"),
                                 );
                             });
 
@@ -208,18 +220,23 @@ impl App for RegexApp {
                     let button_size = Vec2::new((ui.available_width() / 2.0) - 6.0, 42.0);
 
                     // Count all button
-                    if ui.add_sized(
-                        button_size,
-                        Button::new(RichText::new("🔍 Count All").size(18.0)),
-                    )
-                    .clicked()
+                    if ui
+                        .add_sized(
+                            button_size,
+                            Button::new(RichText::new("🔍 Count All").size(18.0)),
+                        )
+                        .clicked()
                     {
                         info!("Count all clicked");
                         let _ = self.renamer.count_all_matches(&mut self.rules);
                     }
 
                     // Execute button
-                    if ui.add_sized(button_size, Button::new(RichText::new("▶ Execute").size(18.0)))
+                    if ui
+                        .add_sized(
+                            button_size,
+                            Button::new(RichText::new("▶ Execute").size(18.0)),
+                        )
                         .clicked()
                     {
                         info!("Execute clicked");
@@ -289,7 +306,11 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Regex GUI",
         native_opts,
-        Box::new(|_cc| Ok::<Box<dyn App>, Box<dyn std::error::Error + Send + Sync>>(Box::new(RegexApp::default()))),
+        Box::new(|_cc| {
+            Ok::<Box<dyn App>, Box<dyn std::error::Error + Send + Sync>>(Box::new(
+                RegexApp::default(),
+            ))
+        }),
     )
 }
 
