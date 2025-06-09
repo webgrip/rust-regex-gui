@@ -1,12 +1,12 @@
-name: '[Workflow] On PR Synchronize'
+name: '[Workflow] On PR Open'
 
 concurrency:
-  group: pr-sync-${{ github.event.pull_request.head.ref || github.event.pull_request.base.ref }}
+  group: pr-open-${{ github.event.pull_request.head.ref || github.event.pull_request.base.ref }}
 
 on:
   pull_request:
     types:
-      - synchronize
+      - opened
     branches:
       - '*'
 
