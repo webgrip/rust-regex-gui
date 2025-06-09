@@ -17,7 +17,7 @@ mod telemetry;
 mod theme;
 
 use ansi::ansi_to_job;
-use application::Renamer;
+use application::{Renamer, StdFileSystem};
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
@@ -37,7 +37,8 @@ impl RegexApp {
         let log_writer = init_tracing(LevelFilter::INFO);
         info!("RegexApp started");
         let logger = Arc::new(TracingLogger);
-        let renamer = Renamer::new(logger);
+        let fs = Arc::new(StdFileSystem);
+        let renamer = Renamer::new(logger, fs);
         Self {
             dry_run: false,
             rules: vec![Rule::default()],
@@ -83,11 +84,20 @@ impl App for RegexApp {
                 egui::Grid::new("rules_grid").striped(true).show(ui, |ui| {
                     ui.label(RichText::new("From Regex").strong());
                     ui.label(RichText::new("To Path").strong());
+                    ui.label(RichText::new("Matches").strong());
                     ui.end_row();
 
                     for rule in &mut self.rules {
                         ui.text_edit_singleline(&mut rule.from);
                         ui.text_edit_singleline(&mut rule.to);
+                        if ui.button("Count").clicked() {
+                            let _ = self.renamer.count_matches(rule);
+                        }
+                        let label = rule
+                            .match_count
+                            .map(|c| c.to_string())
+                            .unwrap_or_else(|| "-".into());
+                        ui.label(label);
                         ui.end_row();
                     }
                 });
@@ -100,7 +110,7 @@ impl App for RegexApp {
                     }
                     if ui.button("▶  Execute").clicked() {
                         info!("execute clicked");
-                        self.renamer.execute(&self.rules);
+                        let _ = self.renamer.execute(&self.rules);
                     }
                 });
             });

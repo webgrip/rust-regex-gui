@@ -2,6 +2,7 @@
 pub struct Rule {
     pub from: String,
     pub to: String,
+    pub match_count: Option<usize>,
 }
 
 #[cfg(test)]
@@ -13,5 +14,6 @@ mod tests {
         let rule = Rule::default();
         assert!(rule.from.is_empty());
         assert!(rule.to.is_empty());
+        assert!(rule.match_count.is_none());
     }
 }
