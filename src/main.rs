@@ -1,5 +1,5 @@
 use eframe::{App, Frame, egui};
-use egui::{CentralPanel, Margin, RichText};
+use egui::{CentralPanel, Margin, RichText, TopBottomPanel};
 
 #[cfg(target_arch = "wasm32")]
 use console_error_panic_hook;
@@ -13,11 +13,13 @@ use wasm_bindgen_futures::spawn_local;
 mod application;
 mod domain;
 mod telemetry;
+mod theme;
 
 use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+use theme::catppuccin_visuals;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -57,6 +59,7 @@ impl App for RegexApp {
             style.spacing.item_spacing = egui::vec2(10.0, 8.0);
             style
         });
+        ctx.set_visuals(catppuccin_visuals());
 
         // --- main UI -------------------------------------------------------
         CentralPanel::default()
@@ -92,12 +95,15 @@ impl App for RegexApp {
                         self.renamer.execute(&self.rules);
                     }
                 });
+            });
 
-                // log view -------------------------------------------------
-                ui.separator();
+        TopBottomPanel::bottom("log_panel")
+            .resizable(true)
+            .default_height(200.0)
+            .show(ctx, |ui| {
                 ui.heading("Logs");
                 egui::ScrollArea::vertical()
-                    .max_height(200.0)
+                    .stick_to_bottom(true)
                     .show(ui, |ui| {
                         for line in self.log_writer.logs() {
                             ui.monospace(line);
