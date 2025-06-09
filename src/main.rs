@@ -67,7 +67,7 @@ impl App for RegexApp {
                 ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
                 ui.add_space(4.0);
                 let changed = ui
-                    .checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)")
+                    .checkbox(&mut self.dry_run, "Dry run (no files are actually renamed)")
                     .changed();
                 if changed {
                     info!("dry_run toggled: {}", self.dry_run);
@@ -116,8 +116,8 @@ impl App for RegexApp {
 
         TopBottomPanel::bottom("log_panel")
             .resizable(true)
-            .default_height(200.0)
             .min_height(200.0)
+            .max_height(600.0)
             .show(ctx, |ui| {
                 ui.heading("Logs");
                 egui::ScrollArea::vertical().show(ui, |ui| {
