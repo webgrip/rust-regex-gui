@@ -5,7 +5,9 @@ concurrency:
 
 on:
   pull_request:
-    types: [synchronize]
+    types:
+      - synchronize
+      - opened
     branches:
       - '*'
 
