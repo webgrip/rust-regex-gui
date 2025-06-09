@@ -43,6 +43,12 @@ impl RegexApp {
     }
 }
 
+impl Default for RegexApp {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl App for RegexApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         // --- one‑off global style tweaks ----------------------------------
