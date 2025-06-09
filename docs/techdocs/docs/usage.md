@@ -1,5 +1,10 @@
 # Usage
 
+The application displays renaming rules in a small data table. Each row lets you
+enter a regular expression and the destination path. Dedicated buttons allow you
+to add or remove rows and the input fields have ample width for comfortable
+typing.
+
 ## Running locally
 
 ```bash
