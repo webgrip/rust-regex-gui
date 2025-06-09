@@ -1,5 +1,5 @@
-site_name: 'Vencore TechDocs'
-site_description: 'The Vencore TechDocs site provides documentation for the Vencore project.'
+site_name: 'Rust Regex Gui'
+site_description: 'The docs for the Rust Regex Gui project, a GUI for the Rust regex crate.'
 
 theme:
   name: 'material'
