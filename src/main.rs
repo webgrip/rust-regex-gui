@@ -70,7 +70,12 @@ impl App for RegexApp {
                 // title ----------------------------------------------------
                 ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
                 ui.add_space(4.0);
-                ui.checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)");
+                let changed = ui
+                    .checkbox(&mut self.dry_run, "Dry‑run (no files are actually renamed)")
+                    .changed();
+                if changed {
+                    info!("dry_run toggled: {}", self.dry_run);
+                }
                 ui.separator();
 
                 // rules table ---------------------------------------------
@@ -94,6 +99,7 @@ impl App for RegexApp {
                         info!("Added new rule");
                     }
                     if ui.button("▶  Execute").clicked() {
+                        info!("execute clicked");
                         self.renamer.execute(&self.rules);
                     }
                 });
@@ -102,14 +108,14 @@ impl App for RegexApp {
         TopBottomPanel::bottom("log_panel")
             .resizable(true)
             .default_height(200.0)
+            .min_height(200.0)
             .show(ctx, |ui| {
                 ui.heading("Logs");
                 egui::ScrollArea::vertical()
-                    .stick_to_bottom(true)
                     .show(ui, |ui| {
                         ui.set_width(ui.available_width());
                         let default_color = ui.visuals().text_color();
-                        for line in self.log_writer.logs() {
+                        for line in self.log_writer.logs().iter().rev() {
                             let job = ansi_to_job(&line, default_color);
                             ui.label(job);
                         }

@@ -53,4 +53,13 @@ mod tests {
         assert_eq!(job.sections[0].format.color, Color32::from_rgb(220, 50, 47));
         assert_eq!(job.sections[1].format.color, Color32::WHITE);
     }
+
+    #[test]
+    fn reset_restores_default_color() {
+        let job = ansi_to_job("\x1b[32mgreen\x1b[0m text", Color32::BLACK);
+        assert_eq!(job.text, "green text");
+        assert_eq!(job.sections.len(), 2);
+        assert_eq!(job.sections[0].format.color, Color32::from_rgb(0, 175, 0));
+        assert_eq!(job.sections[1].format.color, Color32::BLACK);
+    }
 }
