@@ -10,11 +10,13 @@ use wasm_bindgen::JsCast;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::spawn_local;
 
+mod ansi;
 mod application;
 mod domain;
 mod telemetry;
 mod theme;
 
+use ansi::ansi_to_job;
 use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
@@ -105,8 +107,11 @@ impl App for RegexApp {
                 egui::ScrollArea::vertical()
                     .stick_to_bottom(true)
                     .show(ui, |ui| {
+                        ui.set_width(ui.available_width());
+                        let default_color = ui.visuals().text_color();
                         for line in self.log_writer.logs() {
-                            ui.monospace(line);
+                            let job = ansi_to_job(&line, default_color);
+                            ui.label(job);
                         }
                     });
             });
