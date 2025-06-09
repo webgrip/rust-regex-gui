@@ -110,7 +110,7 @@ mod tests {
                 .entries
                 .iter()
                 .filter(|e| pattern.is_match(&e.path.to_string_lossy()))
-                .cloned()                               // clone only the retained items
+                .cloned() // clone only the retained items
                 .collect())
         }
 

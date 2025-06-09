@@ -1,4 +1,4 @@
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Margin, RichText, TopBottomPanel};
 
 #[cfg(target_arch = "wasm32")]
@@ -20,7 +20,7 @@ use ansi::ansi_to_job;
 use application::{Renamer, StdFileSystem};
 use domain::Rule;
 use std::sync::Arc;
-use telemetry::{init_tracing, MemoryWriter, TracingLogger};
+use telemetry::{MemoryWriter, TracingLogger, init_tracing};
 use theme::apply_catppuccin;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
