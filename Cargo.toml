@@ -1,9 +1,16 @@
 [package]
 name = "rust-regex-gui"
-version = "1.0.1"
+description = "A GUI application for testing and visualizing Rust regex patterns."
+documentation = "https://webgrip.github.io/rust-regex-gui/"
+homepage = "https://github.com/webgrip/rust-regex-gui"
+repository = "https://github.com/webgrip/rust-regex-gui"
+readme = "README.md"
 edition = "2024"
 rust-version = "1.87.0"
-license = "Apache-2.0"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["regex", "gui", "eframe", "egui", "rust"]
+version = "1.0.1"
 
 [workspace]
 resolver = "2"
