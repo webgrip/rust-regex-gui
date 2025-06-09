@@ -1,10 +1,7 @@
 use std::io::{self, Write};
 use std::sync::{Arc, Mutex};
 
-use tracing::{info, subscriber::set_global_default};
-use tracing_subscriber::{
-    EnvFilter, Registry, filter::LevelFilter, fmt::MakeWriter, layer::SubscriberExt,
-};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
 /// Abstraction over logging so application code can remain decoupled from
 /// specific logging frameworks.
@@ -17,7 +14,7 @@ pub struct TracingLogger;
 
 impl Logger for TracingLogger {
     fn log(&self, message: &str) {
-        info!("{}", message);
+        tracing::info!(target: "app", "{}", message);
     }
 }
 
@@ -49,7 +46,7 @@ impl Write for MemoryWriter {
     }
 }
 
-impl<'a> MakeWriter<'a> for MemoryWriter {
+impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for MemoryWriter {
     type Writer = MemoryWriter;
 
     fn make_writer(&'a self) -> Self::Writer {
@@ -59,10 +56,17 @@ impl<'a> MakeWriter<'a> for MemoryWriter {
 
 /// Initializes global tracing with an in-memory writer. Returns the writer so
 /// callers can read the collected logs.
-pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
+pub fn init_tracing(level: tracing_subscriber::filter::LevelFilter) -> MemoryWriter {
     let writer = MemoryWriter::default();
 
-    // ⬇️ turn colour off
+    #[cfg(target_arch = "wasm32")]
+    let layer = tracing_subscriber::fmt::layer()
+        .with_writer(writer.clone())
+        .with_ansi(false)
+        // ⬇️ avoid std::time::SystemTime, which panics on wasm32-unknown-unknown
+        .without_time();
+
+    #[cfg(not(target_arch = "wasm32"))]
     let layer = tracing_subscriber::fmt::layer()
         .with_writer(writer.clone())
         .with_ansi(false);
@@ -74,6 +78,6 @@ pub fn init_tracing(level: LevelFilter) -> MemoryWriter {
     ));
 
     let subscriber = Registry::default().with(filter).with(layer);
-    set_global_default(subscriber).expect("set tracing subscriber");
+    tracing::subscriber::set_global_default(subscriber).expect("set tracing subscriber");
     writer
 }

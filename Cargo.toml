@@ -9,6 +9,7 @@ license = "Apache-2.0"
 resolver = "2"
 
 [dependencies]
+console_error_panic_hook = "0.1"
 eframe = { version = "0.31.1", default-features = false, features = ["glow", "default_fonts", "x11", "wayland",] }
 log = "0.4.27"
 regex = "1.11.1"
