@@ -58,6 +58,13 @@ impl Renamer {
         Ok(count)
     }
 
+    pub fn count_all_matches(&self, rules: &mut [Rule]) -> io::Result<()> {
+        for rule in rules {
+            self.count_matches(rule)?;
+        }
+        Ok(())
+    }
+
     pub fn execute(&self, rules: &[Rule]) -> io::Result<()> {
         for rule in rules {
             self.logger
@@ -171,6 +178,36 @@ mod tests {
 
         renamer.count_matches(&mut rule).unwrap();
         assert_eq!(rule.match_count, Some(1));
+    }
+
+    #[test]
+    fn count_all_updates_all_rules() {
+        let logger = Arc::new(TestLogger {
+            messages: Arc::new(Mutex::new(Vec::new())),
+        });
+        let fs = Arc::new(MockFs {
+            files: vec![PathBuf::from("a.txt"), PathBuf::from("b.txt")],
+            moved: Arc::new(Mutex::new(Vec::new())),
+        });
+        let renamer = Renamer::new(logger, fs);
+
+        let mut rules = vec![
+            Rule {
+                from: ".*a\\.txt".into(),
+                to: "".into(),
+                match_count: None,
+            },
+            Rule {
+                from: ".*b\\.txt".into(),
+                to: "".into(),
+                match_count: None,
+            },
+        ];
+
+        renamer.count_all_matches(&mut rules).unwrap();
+
+        assert_eq!(rules[0].match_count, Some(1));
+        assert_eq!(rules[1].match_count, Some(1));
     }
 
     #[test]
