@@ -81,3 +81,25 @@ pub fn init_tracing(level: tracing_subscriber::filter::LevelFilter) -> MemoryWri
     tracing::subscriber::set_global_default(subscriber).expect("set tracing subscriber");
     writer
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tracing_subscriber::fmt::MakeWriter;
+
+    #[test]
+    fn logs_returns_written_lines() {
+        let mut writer = MemoryWriter::default();
+        writer.write_all(b"first\nsecond\n").unwrap();
+        assert_eq!(writer.logs(), vec!["first", "second"]);
+    }
+
+    #[test]
+    fn make_writer_produces_shared_buffer() {
+        let writer = MemoryWriter::default();
+        let mut other = writer.make_writer();
+        other.write_all(b"line\n").unwrap();
+        assert_eq!(writer.logs(), vec!["line"]);
+    }
+}
