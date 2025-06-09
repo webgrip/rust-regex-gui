@@ -1,19 +1,13 @@
-name: '[Workflow] On Source Change'
+name: '[Workflow] On PR Synchronize'
 
 concurrency:
-  group: push-${{ github.ref || 'main' }}
+  group: pr-sync-${{ github.event.pull_request.head.ref || github.event.pull_request.base.ref }}
 
 on:
-  push:
+  pull_request:
+    types: [synchronize]
     branches:
       - '*'
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - '.github/workflows/on_source_change.yml'
-      - '.releaserc.json'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
 
 jobs:
   static-analysis:

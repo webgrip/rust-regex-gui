@@ -7,3 +7,12 @@ services:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: rust-regex-gui-web:latest
+    container_name: regex-gui-web
+    ports:
+      - "8080:80"
