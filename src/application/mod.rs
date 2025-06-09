@@ -19,3 +19,50 @@ impl Renamer {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::{Arc, Mutex};
+
+    struct TestLogger {
+        messages: Arc<Mutex<Vec<String>>>,
+    }
+
+    impl Logger for TestLogger {
+        fn log(&self, message: &str) {
+            self.messages.lock().unwrap().push(message.to_string());
+        }
+    }
+
+    #[test]
+    fn execute_logs_each_mapping() {
+        let messages = Arc::new(Mutex::new(Vec::new()));
+        let logger = Arc::new(TestLogger {
+            messages: Arc::clone(&messages),
+        });
+        let renamer = Renamer::new(logger);
+
+        let rules = vec![
+            Rule {
+                from: "src".into(),
+                to: "dst".into(),
+            },
+            Rule {
+                from: "foo".into(),
+                to: "bar".into(),
+            },
+        ];
+
+        renamer.execute(&rules);
+
+        let collected = messages.lock().unwrap().clone();
+        assert_eq!(
+            collected,
+            vec![
+                "Mapping 'src' -> 'dst'".to_string(),
+                "Mapping 'foo' -> 'bar'".to_string(),
+            ]
+        );
+    }
+}
