@@ -17,11 +17,11 @@ mod telemetry;
 mod theme;
 
 use ansi::ansi_to_job;
-use application::Renamer;
+use application::{Renamer, StdFileSystem};
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
-use theme::catppuccin_visuals;
+use theme::apply_catppuccin;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -37,9 +37,10 @@ impl RegexApp {
         let log_writer = init_tracing(LevelFilter::INFO);
         info!("RegexApp started");
         let logger = Arc::new(TracingLogger);
-        let renamer = Renamer::new(logger);
+        let fs = Arc::new(StdFileSystem);
+        let renamer = Renamer::new(logger, fs);
         Self {
-            dry_run: false,
+            dry_run: true,
             rules: vec![Rule::default()],
             renamer,
             log_writer,
@@ -78,12 +79,7 @@ impl Default for RegexApp {
 impl App for RegexApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         // --- one‑off global style tweaks ----------------------------------
-        ctx.set_style({
-            let mut style = (*ctx.style()).clone();
-            style.spacing.item_spacing = egui::vec2(10.0, 8.0);
-            style
-        });
-        ctx.set_visuals(catppuccin_visuals());
+        apply_catppuccin(ctx);
 
         // --- main UI -------------------------------------------------------
         CentralPanel::default()
@@ -144,17 +140,22 @@ impl App for RegexApp {
                         self.add_rule();
                         info!("Added new rule");
                     }
+                    if ui.button("🔍  Count all").clicked() {
+                        info!("count all clicked");
+                        let _ = self.renamer.count_all_matches(&mut self.rules);
+                    }
                     if ui.button("▶  Execute").clicked() {
                         info!("execute clicked");
-                        self.renamer.execute(&self.rules);
+                        let _ = self.renamer.execute(&self.rules);
                     }
                 });
             });
 
+        // --- log panel -----------------------------------------------------
         TopBottomPanel::bottom("log_panel")
             .resizable(true)
-            .default_height(200.0)
             .min_height(200.0)
+            .max_height(600.0)
             .show(ctx, |ui| {
                 ui.heading("Logs");
                 egui::ScrollArea::vertical().show(ui, |ui| {
