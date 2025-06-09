@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 use std::sync::{Arc, Mutex};
 
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
+use tracing_subscriber::{EnvFilter, Registry, layer::SubscriberExt};
 
 /// Abstraction over logging so application code can remain decoupled from
 /// specific logging frameworks.

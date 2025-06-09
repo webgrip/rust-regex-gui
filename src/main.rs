@@ -2,13 +2,13 @@ use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Margin, RichText};
 
 #[cfg(target_arch = "wasm32")]
+use console_error_panic_hook;
+#[cfg(target_arch = "wasm32")]
 use eframe::web_sys::HtmlCanvasElement;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsCast;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen_futures::spawn_local;
-#[cfg(target_arch = "wasm32")]
-use console_error_panic_hook;
 
 mod application;
 mod domain;
@@ -17,7 +17,7 @@ mod telemetry;
 use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
-use telemetry::{init_tracing, MemoryWriter, TracingLogger};
+use telemetry::{MemoryWriter, TracingLogger, init_tracing};
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -64,19 +64,17 @@ impl App for RegexApp {
 
                 // rules table ---------------------------------------------
                 ui.heading("Rules");
-                egui::Grid::new("rules_grid")
-                    .striped(true)
-                    .show(ui, |ui| {
-                        ui.label(RichText::new("From Regex").strong());
-                        ui.label(RichText::new("To Path").strong());
-                        ui.end_row();
+                egui::Grid::new("rules_grid").striped(true).show(ui, |ui| {
+                    ui.label(RichText::new("From Regex").strong());
+                    ui.label(RichText::new("To Path").strong());
+                    ui.end_row();
 
-                        for rule in &mut self.rules {
-                            ui.text_edit_singleline(&mut rule.from);
-                            ui.text_edit_singleline(&mut rule.to);
-                            ui.end_row();
-                        }
-                    });
+                    for rule in &mut self.rules {
+                        ui.text_edit_singleline(&mut rule.from);
+                        ui.text_edit_singleline(&mut rule.to);
+                        ui.end_row();
+                    }
+                });
 
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
