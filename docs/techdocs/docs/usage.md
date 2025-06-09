@@ -1,5 +1,9 @@
 # Usage
 
+The application displays a table of renaming rules. Each row lets you enter a
+regular expression and the destination path. Rules can be added or removed with
+dedicated buttons and the input fields have ample width for comfortable typing.
+
 ## Running locally
 
 ```bash

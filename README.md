@@ -1,7 +1,9 @@
 # Regex GUI
 Simple desktop app written in Rust using `eframe`/`egui`. It allows adding
 regex rules that map file names to a destination directory. A "Dry Run"
-checkbox toggles whether renames should actually happen.
+checkbox toggles whether renames should actually happen. The rules table offers
+buttons to add or remove entries and the inputs are sized for comfortable
+editing.
 
 Logs are captured using the [`tracing`](https://crates.io/crates/tracing)
 ecosystem and displayed in the UI. The global subscriber filters logs for this
