@@ -7,23 +7,31 @@ use crate::telemetry::Logger;
 use regex::Regex;
 use walkdir::WalkDir;
 
+#[derive(Clone)]
+pub struct FileEntry {
+    pub path: PathBuf,
+    pub is_dir: bool,
+}
+
 pub trait FileSystem: Send + Sync {
-    fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<PathBuf>>;
+    fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<FileEntry>>;
     fn move_file(&self, from: &Path, to: &Path) -> io::Result<()>;
 }
 
 pub struct StdFileSystem;
 
 impl FileSystem for StdFileSystem {
-    fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<PathBuf>> {
+    fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<FileEntry>> {
         let mut matches = Vec::new();
         for entry in WalkDir::new(".") {
             let entry = entry?;
-            if entry.file_type().is_file() {
-                let path_str = entry.path().to_string_lossy();
-                if pattern.is_match(&path_str) {
-                    matches.push(entry.path().to_path_buf());
-                }
+            let abs = entry.path().canonicalize()?;
+            let path_str = abs.to_string_lossy();
+            if pattern.is_match(&path_str) {
+                matches.push(FileEntry {
+                    path: entry.path().to_path_buf(),
+                    is_dir: entry.file_type().is_dir(),
+                });
             }
         }
         Ok(matches)
@@ -51,11 +59,15 @@ impl Renamer {
         let re =
             Regex::new(&rule.from).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
         let matches = self.fs.find_matches(&re)?;
-        let count = matches.len();
-        rule.match_count = Some(count);
-        self.logger
-            .log(&format!("Found {} matches for '{}'", count, rule.from));
-        Ok(count)
+        let file_count = matches.iter().filter(|m| !m.is_dir).count();
+        let dir_count = matches.iter().filter(|m| m.is_dir).count();
+        rule.file_match_count = Some(file_count);
+        rule.dir_match_count = Some(dir_count);
+        self.logger.log(&format!(
+            "Found {} files and {} directories for '{}'",
+            file_count, dir_count, rule.from
+        ));
+        Ok(file_count + dir_count)
     }
 
     pub fn count_all_matches(&self, rules: &mut [Rule]) -> io::Result<()> {
@@ -71,10 +83,10 @@ impl Renamer {
                 .log(&format!("Mapping '{}' -> '{}'", rule.from, rule.to));
             let re = Regex::new(&rule.from)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
-            for path in self.fs.find_matches(&re)? {
-                let path_str = path.to_string_lossy();
+            for entry in self.fs.find_matches(&re)? {
+                let path_str = entry.path.to_string_lossy();
                 let dest_str = re.replace(&path_str, &rule.to).to_string();
-                self.fs.move_file(&path, Path::new(&dest_str))?;
+                self.fs.move_file(&entry.path, Path::new(&dest_str))?;
             }
         }
         Ok(())
@@ -88,17 +100,17 @@ mod tests {
     use std::sync::{Arc, Mutex};
 
     struct MockFs {
-        files: Vec<PathBuf>,
+        entries: Vec<FileEntry>,
         moved: Arc<Mutex<Vec<(PathBuf, PathBuf)>>>,
     }
 
     impl FileSystem for MockFs {
-        fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<PathBuf>> {
+        fn find_matches(&self, pattern: &Regex) -> io::Result<Vec<FileEntry>> {
             Ok(self
-                .files
+                .entries
                 .iter()
                 .cloned()
-                .filter(|p| pattern.is_match(&p.to_string_lossy()))
+                .filter(|e| pattern.is_match(&e.path.to_string_lossy()))
                 .collect())
         }
 
@@ -128,7 +140,7 @@ mod tests {
             messages: Arc::clone(&messages),
         });
         let fs = Arc::new(MockFs {
-            files: vec![],
+            entries: vec![],
             moved: Arc::new(Mutex::new(Vec::new())),
         });
         let renamer = Renamer::new(logger, fs);
@@ -137,12 +149,14 @@ mod tests {
             Rule {
                 from: "src".into(),
                 to: "dst".into(),
-                match_count: None,
+                file_match_count: None,
+                dir_match_count: None,
             },
             Rule {
                 from: "foo".into(),
                 to: "bar".into(),
-                match_count: None,
+                file_match_count: None,
+                dir_match_count: None,
             },
         ];
 
@@ -165,7 +179,16 @@ mod tests {
             messages: Arc::clone(&messages),
         });
         let fs = Arc::new(MockFs {
-            files: vec![PathBuf::from("a.txt"), PathBuf::from("b.rs")],
+            entries: vec![
+                FileEntry {
+                    path: PathBuf::from("a.txt"),
+                    is_dir: false,
+                },
+                FileEntry {
+                    path: PathBuf::from("b.rs"),
+                    is_dir: false,
+                },
+            ],
             moved: Arc::new(Mutex::new(Vec::new())),
         });
         let renamer = Renamer::new(logger, fs);
@@ -173,11 +196,13 @@ mod tests {
         let mut rule = Rule {
             from: ".*\\.txt$".into(),
             to: "".into(),
-            match_count: None,
+            file_match_count: None,
+            dir_match_count: None,
         };
 
         renamer.count_matches(&mut rule).unwrap();
-        assert_eq!(rule.match_count, Some(1));
+        assert_eq!(rule.file_match_count, Some(1));
+        assert_eq!(rule.dir_match_count, Some(0));
     }
 
     #[test]
@@ -186,7 +211,16 @@ mod tests {
             messages: Arc::new(Mutex::new(Vec::new())),
         });
         let fs = Arc::new(MockFs {
-            files: vec![PathBuf::from("a.txt"), PathBuf::from("b.txt")],
+            entries: vec![
+                FileEntry {
+                    path: PathBuf::from("a.txt"),
+                    is_dir: false,
+                },
+                FileEntry {
+                    path: PathBuf::from("b.txt"),
+                    is_dir: false,
+                },
+            ],
             moved: Arc::new(Mutex::new(Vec::new())),
         });
         let renamer = Renamer::new(logger, fs);
@@ -195,19 +229,21 @@ mod tests {
             Rule {
                 from: ".*a\\.txt".into(),
                 to: "".into(),
-                match_count: None,
+                file_match_count: None,
+                dir_match_count: None,
             },
             Rule {
                 from: ".*b\\.txt".into(),
                 to: "".into(),
-                match_count: None,
+                file_match_count: None,
+                dir_match_count: None,
             },
         ];
 
         renamer.count_all_matches(&mut rules).unwrap();
 
-        assert_eq!(rules[0].match_count, Some(1));
-        assert_eq!(rules[1].match_count, Some(1));
+        assert_eq!(rules[0].file_match_count, Some(1));
+        assert_eq!(rules[1].file_match_count, Some(1));
     }
 
     #[test]
@@ -218,7 +254,16 @@ mod tests {
         });
         let moved = Arc::new(Mutex::new(Vec::new()));
         let fs = Arc::new(MockFs {
-            files: vec![PathBuf::from("foo/a.txt"), PathBuf::from("foo/b.txt")],
+            entries: vec![
+                FileEntry {
+                    path: PathBuf::from("foo/a.txt"),
+                    is_dir: false,
+                },
+                FileEntry {
+                    path: PathBuf::from("foo/b.txt"),
+                    is_dir: false,
+                },
+            ],
             moved: Arc::clone(&moved),
         });
         let renamer = Renamer::new(logger, fs);
@@ -226,7 +271,8 @@ mod tests {
         let rules = vec![Rule {
             from: "foo/(.*)\\.txt".into(),
             to: "bar/$1.md".into(),
-            match_count: None,
+            file_match_count: None,
+            dir_match_count: None,
         }];
 
         renamer.execute(&rules).unwrap();

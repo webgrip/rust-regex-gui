@@ -67,10 +67,10 @@ impl App for RegexApp {
                 ui.heading(RichText::new("🔧  Regex Renamer").size(24.0).strong());
                 ui.add_space(4.0);
                 let changed = ui
-                    .checkbox(&mut self.dry_run, "Dry run (no files are actually renamed)")
-                    .changed();
-                if changed {
-                    info!("dry_run toggled: {}", self.dry_run);
+                        let label = match (rule.file_match_count, rule.dir_match_count) {
+                            (Some(f), Some(d)) => format!("f:{}, d:{}", f, d),
+                            _ => "-".to_string(),
+                        };
                 }
                 ui.separator();
 
