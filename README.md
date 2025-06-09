@@ -41,3 +41,16 @@ docker compose up web --build
 ```
 
 Then open <http://localhost:8080> in your browser.
+
+## Tauri (Vite)
+
+To run the application inside a Tauri window using Vite:
+
+```
+# start the Vite dev server
+npm run dev &
+# in another terminal, launch Tauri
+npm run tauri
+```
+
+The `tauri.conf.json` is configured to load `http://localhost:5173` during development.

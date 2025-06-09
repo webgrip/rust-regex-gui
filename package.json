@@ -1,0 +1,13 @@
+{
+  "name": "regex-gui",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0-beta",
+    "vite": "^5.0.0"
+  }
+}

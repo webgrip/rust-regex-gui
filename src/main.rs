@@ -18,6 +18,8 @@ use application::Renamer;
 use domain::Rule;
 use std::sync::Arc;
 use telemetry::{MemoryWriter, TracingLogger, init_tracing};
+#[cfg(feature = "tauri")]
+mod tauri_app;
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -107,7 +109,7 @@ impl App for RegexApp {
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "tauri")))]
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -115,6 +117,23 @@ fn main() -> eframe::Result<()> {
         native_options,
         Box::new(|_cc| Ok(Box::new(RegexApp::new()))),
     )
+}
+
+#[cfg(all(not(target_arch = "wasm32"), feature = "tauri"))]
+fn main() {
+    std::thread::spawn(|| {
+        let native_options = eframe::NativeOptions::default();
+        eframe::run_native(
+            "Regex GUI",
+            native_options,
+            Box::new(|_cc| Ok(Box::new(RegexApp::new()))),
+        )
+        .expect("failed to start eframe");
+    });
+
+    tauri_app::build()
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 
 #[cfg(target_arch = "wasm32")]

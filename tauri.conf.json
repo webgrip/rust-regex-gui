@@ -1,0 +1,13 @@
+{
+  "package": {
+    "productName": "Regex GUI",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "identifier": "com.example.regexgui"
+  },
+  "build": {
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  }
+}
