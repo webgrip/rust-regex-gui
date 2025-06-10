@@ -10,7 +10,7 @@ rust-version = "1.87.0"
 license = "MIT"
 license-file = "LICENSE"
 keywords = ["regex", "gui", "eframe", "egui", "rust"]
-version = "1.0.1"
+version = "1.0.2"
 
 [workspace]
 resolver = "2"

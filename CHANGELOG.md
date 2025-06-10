@@ -1,3 +1,20 @@
+## [1.0.2](https://github.com/webgrip/rust-regex-gui/compare/v1.0.1...v1.0.2) (2025-06-10)
+
+
+### Bug Fixes
+
+* :rocket: ([227aa72](https://github.com/webgrip/rust-regex-gui/commit/227aa722c0fd2894defa822127821ee405b969d3))
+* :rocket: ([3cb27a3](https://github.com/webgrip/rust-regex-gui/commit/3cb27a3025d33b19af428d37e4daae5e063c0022))
+* :rocket: ([9f17d48](https://github.com/webgrip/rust-regex-gui/commit/9f17d48c4ae80edecce4028ef6c57c6ac8f2be6a))
+* :rocket: ([e3970e6](https://github.com/webgrip/rust-regex-gui/commit/e3970e6bd48ba890766ab7702bba27b132a6e01d))
+* :rocket: ([156e4fa](https://github.com/webgrip/rust-regex-gui/commit/156e4fa53856d5577b21e83aba5bdd90d16589f7))
+* **ci:** :rocket: ([aaeec70](https://github.com/webgrip/rust-regex-gui/commit/aaeec706d3c21a529924520c76e716d25d5cd3c5))
+* **ci:** :rocket: ([ec838b0](https://github.com/webgrip/rust-regex-gui/commit/ec838b05ea8c6f556d3fead1405128d4e7bdbabc))
+* fmt ([7493334](https://github.com/webgrip/rust-regex-gui/commit/7493334827c78c66e055b7a40b94ca0a1a8239b3))
+* fmt ([93b7c2a](https://github.com/webgrip/rust-regex-gui/commit/93b7c2a60545ecbdf1e9a806b7986a4fe3a27a22))
+* **ui:** restrict log toggle to dev mode ([9dcf60b](https://github.com/webgrip/rust-regex-gui/commit/9dcf60ba6ec9102c884bd7839ad46d0426d518b3))
+* update Cargo.lock ([391c450](https://github.com/webgrip/rust-regex-gui/commit/391c450b45dbe617691ac0800606968a16b2370b))
+
 ## [1.0.1](https://github.com/webgrip/rust-regex-gui/compare/v1.0.0...v1.0.1) (2025-06-09)
 
 
