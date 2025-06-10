@@ -9,6 +9,9 @@ Logs are captured using the [`tracing`](https://crates.io/crates/tracing)
 ecosystem and displayed in the UI. The global subscriber filters logs for this
 crate at the `INFO` level so that only relevant messages appear.
 
+When running a debug build you can press **L** to toggle the log panel. In
+release builds the logs remain visible at all times.
+
 ## Running locally
 
 ```

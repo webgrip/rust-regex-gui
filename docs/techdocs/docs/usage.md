@@ -5,6 +5,9 @@ enter a regular expression and the destination path. Dedicated buttons allow you
 to add or remove rows and the input fields have ample width for comfortable
 typing.
 
+When running a debug build, press **L** to hide or show the log panel. In release
+builds the logs are always visible.
+
 ## Running locally
 
 ```bash
