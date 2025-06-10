@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/webgrip/rust-regex-gui/compare/v1.1.0...v1.1.1) (2025-06-10)
+
+
+### Bug Fixes
+
+* commit Cargo.lock when version is updated as well. Remove licence ([8f839f5](https://github.com/webgrip/rust-regex-gui/commit/8f839f5c03a6c7c5ab4e0bacdb7d54cbd9764207))
+* make sure we get the right token ([c622108](https://github.com/webgrip/rust-regex-gui/commit/c622108461d2046e2fc3e6cec3b2f3a62e0fb520))
+
 # [1.1.0](https://github.com/webgrip/rust-regex-gui/compare/v1.0.2...v1.1.0) (2025-06-10)
 
 
