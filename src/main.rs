@@ -36,6 +36,9 @@ use theme::apply_catppuccin;
 use tracing::{info, warn};
 use tracing_subscriber::filter::LevelFilter;
 
+/// Returns `true` when the application is compiled in development mode.
+const DEV_MODE: bool = cfg!(debug_assertions);
+
 //==========================================================================
 // RegexApp – the eframe::App implementation
 //==========================================================================
@@ -115,6 +118,55 @@ impl App for RegexApp {
         // Theme (apply once per frame)
         // -----------------------------------------------------------------
         apply_catppuccin(ctx);
+
+        // -----------------------------------------------------------------
+        // Toggle log visibility via hot‑key (press "L") in development mode
+        // -----------------------------------------------------------------
+        if DEV_MODE && ctx.input_mut(|i| i.consume_key(Modifiers::NONE, Key::L)) {
+            self.show_log = !self.show_log;
+        }
+
+        // ═════════════════════════ Log panel ═════════════════════════════
+        if self.show_log {
+            TopBottomPanel::bottom("log_panel")
+                .resizable(true)
+                .min_height(200.0)
+                .max_height(600.0)
+                .show(ctx, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.heading("Logs");
+                        if DEV_MODE {
+                            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                                if ui.button("👁‍🗨").on_hover_text("Hide log (L)").clicked()
+                                {
+                                    self.show_log = false;
+                                }
+                            });
+                        }
+                    });
+
+                    egui::ScrollArea::vertical().show(ui, |ui| {
+                        ui.set_width(ui.available_width());
+                        let default_color = ui.visuals().text_color();
+                        for line in self.log_writer.logs().iter().rev() {
+                            ui.label(ansi_to_job(line, default_color));
+                        }
+                    });
+                });
+        } else if DEV_MODE {
+            // Collapsed stub allowing the log to be shown again
+            TopBottomPanel::bottom("log_toggle_stub")
+                .exact_height(24.0)
+                .show(ctx, |ui| {
+                    if ui
+                        .centered_and_justified(|ui| ui.button("Show log ⬆ (L)"))
+                        .inner
+                        .clicked()
+                    {
+                        self.show_log = true;
+                    }
+                });
+        }
 
         // ═════════════════════════ Central panel ═════════════════════════
         CentralPanel::default().show(ctx, |ui| {
@@ -248,52 +300,6 @@ impl App for RegexApp {
                 });
             });
         });
-
-        // -----------------------------------------------------------------
-        // Toggle log visibility via hot‑key (press "L")
-        // -----------------------------------------------------------------
-        if ctx.input_mut(|i| i.consume_key(Modifiers::NONE, Key::L)) {
-            self.show_log = !self.show_log;
-        }
-
-        // ═════════════════════════ Log panel ═════════════════════════════
-        if self.show_log {
-            TopBottomPanel::bottom("log_panel")
-                .resizable(true)
-                .min_height(200.0)
-                .max_height(600.0)
-                .show(ctx, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.heading("Logs");
-                        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                            if ui.button("👁‍🗨").on_hover_text("Hide log (L)").clicked() {
-                                self.show_log = false;
-                            }
-                        });
-                    });
-
-                    egui::ScrollArea::vertical().show(ui, |ui| {
-                        ui.set_width(ui.available_width());
-                        let default_color = ui.visuals().text_color();
-                        for line in self.log_writer.logs().iter().rev() {
-                            ui.label(ansi_to_job(line, default_color));
-                        }
-                    });
-                });
-        } else {
-            // Collapsed stub allowing the log to be shown again
-            TopBottomPanel::bottom("log_toggle_stub")
-                .exact_height(24.0)
-                .show(ctx, |ui| {
-                    if ui
-                        .centered_and_justified(|ui| ui.button("Show log ⬆ (L)"))
-                        .inner
-                        .clicked()
-                    {
-                        self.show_log = true;
-                    }
-                });
-        }
     }
 }
 
@@ -383,5 +389,10 @@ mod tests {
         assert!(app.show_log);
         app.show_log = false;
         assert!(!app.show_log);
+    }
+
+    #[test]
+    fn dev_mode_constant_true_in_tests() {
+        assert!(DEV_MODE);
     }
 }

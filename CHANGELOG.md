@@ -1,3 +1,8 @@
+## [Unreleased]
+
+### Changed
+- log panel toggling is restricted to debug builds and no longer covers the action buttons
+
 ## [1.0.1](https://github.com/webgrip/rust-regex-gui/compare/v1.0.0...v1.0.1) (2025-06-09)
 
 
