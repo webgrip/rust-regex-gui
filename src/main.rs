@@ -295,7 +295,7 @@ impl App for RegexApp {
                         if self.dry_run {
                             warn!("Dry‑run mode enabled – no filesystem changes will be applied");
                         }
-                        let _ = self.renamer.execute(&self.rules);
+                        let _ = self.renamer.execute(&self.rules, self.dry_run);
                     }
                 });
             });
