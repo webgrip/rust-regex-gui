@@ -58,7 +58,12 @@ pub struct RegexApp {
 
 impl RegexApp {
     /// App entry‑point used in production (with tracing, real FS, etc.)
-    pub fn new() -> Self {
+    pub fn new(ctx: &Context) -> Self {
+        // -----------------------------------------------------------------
+        // Theme (apply once during setup)
+        // -----------------------------------------------------------------
+        apply_catppuccin(ctx);
+
         let log_writer = init_tracing(LevelFilter::INFO);
         info!("RegexApp started");
 
@@ -102,23 +107,12 @@ impl RegexApp {
     }
 }
 
-impl Default for RegexApp {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 //==========================================================================
 // eframe::App implementation (UI code)
 //==========================================================================
 
 impl App for RegexApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        // -----------------------------------------------------------------
-        // Theme (apply once per frame)
-        // -----------------------------------------------------------------
-        apply_catppuccin(ctx);
-
         // -----------------------------------------------------------------
         // Toggle log visibility via hot‑key (press "L") in development mode
         // -----------------------------------------------------------------
@@ -312,11 +306,7 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Regex GUI",
         native_opts,
-        Box::new(|_cc| {
-            Ok::<Box<dyn App>, Box<dyn std::error::Error + Send + Sync>>(Box::new(
-                RegexApp::default(),
-            ))
-        }),
+        Box::new(|cc| Ok(Box::new(RegexApp::new(&cc.egui_ctx)))),
     )
 }
 
@@ -348,7 +338,7 @@ fn main() {
             .start(
                 canvas,
                 eframe::WebOptions::default(),
-                Box::new(|_cc| Ok(Box::new(RegexApp::default()))),
+                Box::new(|cc| Ok(Box::new(RegexApp::new(&cc.egui_ctx)))),
             )
             .await
             .expect("eframe start failed");
