@@ -1,6 +1,6 @@
 {
   "branches": ["main"],
-  "tagFormat": "v${version}",
+  "tagFormat": "${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -33,8 +33,6 @@
         "successCmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT"
       }
     ],
-
-    "semantic-release-github-actions-tags",
     "@semantic-release/github"
   ]
 }
