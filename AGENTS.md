@@ -8,4 +8,6 @@ ALWAYS write unit tests. Use TDD whenever at all possible. Remember that you're 
 
 Use https://keepachangelog.com/en/1.1.0/ for the PR description
 
+Never change CHANGELOG.md
+
 Make sure that every change you make to the program is reflected somewhere in ./docs/techdocs, and in the README.md, if applicable.
