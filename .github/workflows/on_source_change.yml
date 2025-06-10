@@ -29,6 +29,8 @@ jobs:
     needs: [ static-analysis, tests ]
     if: always() && needs.tests.result == 'success' && github.ref == 'refs/heads/main'
     uses: webgrip/workflows/.github/workflows/rust-semantic-release.yml@main
+    secrets:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   # build-docker-image:
   #   name: 'Build Docker Image'
