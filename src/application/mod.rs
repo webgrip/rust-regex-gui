@@ -77,7 +77,7 @@ impl Renamer {
         Ok(())
     }
 
-    pub fn execute(&self, rules: &[Rule]) -> io::Result<()> {
+    pub fn execute(&self, rules: &[Rule], dry_run: bool) -> io::Result<()> {
         for rule in rules {
             self.logger
                 .log(&format!("Mapping '{}' -> '{}'", rule.from, rule.to));
@@ -86,7 +86,9 @@ impl Renamer {
             for entry in self.fs.find_matches(&re)? {
                 let path_str = entry.path.to_string_lossy();
                 let dest_str = re.replace(&path_str, &rule.to).to_string();
-                self.fs.move_file(&entry.path, Path::new(&dest_str))?;
+                if !dry_run {
+                    self.fs.move_file(&entry.path, Path::new(&dest_str))?;
+                }
             }
         }
         Ok(())
@@ -160,7 +162,7 @@ mod tests {
             },
         ];
 
-        renamer.execute(&rules).unwrap();
+        renamer.execute(&rules, false).unwrap();
 
         let collected = messages.lock().unwrap().clone();
         assert_eq!(
@@ -275,7 +277,7 @@ mod tests {
             dir_match_count: None,
         }];
 
-        renamer.execute(&rules).unwrap();
+        renamer.execute(&rules, false).unwrap();
 
         let moved_files = moved.lock().unwrap().clone();
         assert_eq!(
@@ -285,5 +287,32 @@ mod tests {
                 (PathBuf::from("foo/b.txt"), PathBuf::from("bar/b.md")),
             ]
         );
+    }
+
+    #[test]
+    fn execute_dry_run_skips_moves() {
+        let logger = Arc::new(TestLogger {
+            messages: Arc::new(Mutex::new(Vec::new())),
+        });
+        let moved = Arc::new(Mutex::new(Vec::new()));
+        let fs = Arc::new(MockFs {
+            entries: vec![FileEntry {
+                path: PathBuf::from("foo.txt"),
+                is_dir: false,
+            }],
+            moved: Arc::clone(&moved),
+        });
+        let renamer = Renamer::new(logger, fs);
+
+        let rules = vec![Rule {
+            from: "foo.txt".into(),
+            to: "bar.txt".into(),
+            file_match_count: None,
+            dir_match_count: None,
+        }];
+
+        renamer.execute(&rules, true).unwrap();
+
+        assert!(moved.lock().unwrap().is_empty());
     }
 }
