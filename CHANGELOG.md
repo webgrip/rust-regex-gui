@@ -1,3 +1,18 @@
+# [1.1.0](https://github.com/webgrip/rust-regex-gui/compare/v1.0.2...v1.1.0) (2025-06-10)
+
+
+### Bug Fixes
+
+* **ai:** don't change CHANELOG.md in feature branches ([de844b5](https://github.com/webgrip/rust-regex-gui/commit/de844b55b7755b29c9189fc194c4103e6456a7f1))
+* **ai:** don't change CHANELOG.md in feature branches ([f283eb8](https://github.com/webgrip/rust-regex-gui/commit/f283eb8263eda1b8026e381148795b58c1a1b713))
+* cargo.lock ([6e3ed8b](https://github.com/webgrip/rust-regex-gui/commit/6e3ed8bbe3d1f875ed4bc3ddffb11ae8bc60efdb))
+* renamed LICENSE ([7c397d1](https://github.com/webgrip/rust-regex-gui/commit/7c397d13411e211dbb74d0414692f77f21908988))
+
+
+### Features
+
+* **app:** respect dry-run flag ([989a2fa](https://github.com/webgrip/rust-regex-gui/commit/989a2fa757cbb955c571e205881f525c772b6f5c))
+
 ## [1.0.2](https://github.com/webgrip/rust-regex-gui/compare/v1.0.1...v1.0.2) (2025-06-10)
 
 
