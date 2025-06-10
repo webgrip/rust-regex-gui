@@ -20,6 +20,7 @@
       "@semantic-release/git",
       {
         "assets": [
+          "Cargo.lock",
           "Cargo.toml",
           "CHANGELOG.md"
         ],
