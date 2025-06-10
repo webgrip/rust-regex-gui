@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/webgrip/rust-regex-gui/compare/v1.1.1...v1.1.2) (2025-06-10)
+
+
+### Bug Fixes
+
+* ci deploy ([7ab2409](https://github.com/webgrip/rust-regex-gui/commit/7ab2409f6ef31923d488b6153fbe3e6cb2e0364e))
+
 ## [1.1.1](https://github.com/webgrip/rust-regex-gui/compare/v1.1.0...v1.1.1) (2025-06-10)
 
 
