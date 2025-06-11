@@ -9,7 +9,7 @@ edition = "2024"
 rust-version = "1.87.0"
 license-file = "LICENSE"
 keywords = ["regex", "gui", "eframe", "egui", "rust"]
-version = "0.1.0"
+version = "1.0.0"
 
 [workspace]
 resolver = "2"
