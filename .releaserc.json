@@ -1,5 +1,7 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "tagFormat": "v${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
@@ -14,7 +16,9 @@
     ],
     [
       "@semantic-release/changelog",
-      { "changelogFile": "CHANGELOG.md" }
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
     ],
     [
       "@semantic-release/git",
@@ -33,6 +37,28 @@
         "successCmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT"
       }
     ],
-    "@semantic-release/github"
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/mybin-x86_64-unknown-linux-gnu.tar.gz",
+            "label": "Linux x86-64"
+          },
+          {
+            "path": "dist/mybin-x86_64-apple-darwin.tar.gz",
+            "label": "macOS x86-64"
+          },
+          {
+            "path": "dist/mybin-x86_64-pc-windows-gnu.zip",
+            "label": "Windows x86-64"
+          },
+          {
+            "path": "dist/mybin-wasm32-unknown-unknown.wasm.gz",
+            "label": "WebAssembly (wasm32)"
+          }
+        ]
+      }
+    ]
   ]
 }
