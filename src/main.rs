@@ -386,6 +386,7 @@ mod tests {
     #[test]
     fn toggle_log_flag_changes_state() {
         let mut app = RegexApp::new_for_tests();
+
         assert!(app.show_log);
         app.show_log = false;
         assert!(!app.show_log);
