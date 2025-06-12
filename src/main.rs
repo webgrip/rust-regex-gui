@@ -375,7 +375,6 @@ mod tests {
     #[test]
     fn remove_rule_deletes_correct_index() {
         let mut app = RegexApp::new_for_tests();
-
         app.add_rule();
         let second_from = app.rules[1].from.clone();
         app.remove_rule(0);
